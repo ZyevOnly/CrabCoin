@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CrabCoin - Tap to Earn</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Админ-панель (только для админа) -->
+        <div class="admin-panel" id="adminPanel" style="display: none;">
+            <button class="admin-btn" id="adminToggle">Админ</button>
+        </div>
+
+        <!-- Экран админ-панели -->
+        <div class="admin-screen" id="adminScreen">
+            <div class="admin-header">
+                <div class="admin-title">Админ Панель CrabCoin</div>
+                <button class="close-btn" id="closeAdmin">×</button>
+            </div>
+            
+            <div class="admin-stats">
+                <div class="admin-stat-card">
+                    <div class="stat-label">Всего пользователей</div>
+                    <div class="admin-stat-value" id="adminTotalUsers">0</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="stat-label">Премиум пользователей</div>
+                    <div class="admin-stat-value" id="adminPremiumUsers">0</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="stat-label">Общий баланс</div>
+                    <div class="admin-stat-value" id="adminTotalBalance">0</div>
+                </div>
+                <div class="admin-stat-card">
+                    <div class="stat-label">CRAB в системе</div>
+                    <div class="admin-stat-value" id="adminTotalCrab">0</div>
+                </div>
+            </div>
+            
+            <div class="admin-users-list" id="adminUsersList">
+                <!-- Список пользователей будет заполнен динамически -->
+            </div>
+        </div>
+
+        <!-- Экран авторизации -->
+        <div class="auth-screen" id="authScreen">
+            <div class="auth-content">
+                <!-- Форма входа -->
+                <div id="loginForm">
+                    <div class="auth-title">CrabCoin</div>
+                    <div class="auth-subtitle">Вход в аккаунт</div>
+                    <div class="auth-icon">🦀</div>
+                    
+                    <div class="auth-form">
+                        <div class="form-group">
+                            <label class="form-label">Логин или Email</label>
+                            <input type="text" class="form-input" id="loginUsername" placeholder="Введите логин или email">
+                            <div class="error-message" id="loginUsernameError"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Пароль</label>
+                            <input type="password" class="form-input" id="loginPassword" placeholder="Введите пароль">
+                            <div class="error-message" id="loginPasswordError"></div>
+                        </div>
+                        
+                        <button class="auth-btn" id="loginBtn">Войти</button>
+                        
+                        <button class="auth-switch" id="switchToRegister">Нет аккаунта? Зарегистрироваться</button>
+                    </div>
+                    
+                    <div class="auth-info">
+                        Ваши данные защищены. Мы не передаем информацию третьим лицам.
+                    </div>
+                </div>
+                
+                <!-- Форма регистрации -->
+                <div id="registerForm" style="display: none;">
+                    <div class="auth-title">CrabCoin</div>
+                    <div class="auth-subtitle">Регистрация аккаунта</div>
+                    <div class="auth-icon">🦀</div>
+                    
+                    <div class="auth-form">
+                        <div class="form-group">
+                            <label class="form-label">Логин</label>
+                            <input type="text" class="form-input" id="registerUsername" placeholder="Придумайте логин">
+                            <div class="error-message" id="registerUsernameError"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Тег Telegram</label>
+                            <input type="text" class="form-input" id="registerTelegram" placeholder="@username">
+                            <div class="error-message" id="registerTelegramError"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" id="registerEmail" placeholder="example@mail.com">
+                            <div class="error-message" id="registerEmailError"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Пароль</label>
+                            <input type="password" class="form-input" id="registerPassword" placeholder="Придумайте пароль">
+                            <div class="error-message" id="registerPasswordError"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Подтверждение пароля</label>
+                            <input type="password" class="form-input" id="registerConfirmPassword" placeholder="Повторите пароль">
+                            <div class="error-message" id="registerConfirmPasswordError"></div>
+                        </div>
+                        
+                        <button class="auth-btn" id="registerBtn">Зарегистрироваться</button>
+                        
+                        <button class="auth-switch" id="switchToLogin">Уже есть аккаунт? Войти</button>
+                    </div>
+                    
+                    <div class="auth-info">
+                        Ваши данные защищены. Мы не передаем информацию третьим лицам.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Основной контейнер игры (скрыт до авторизации) -->
+        <div class="container" id="gameContainer" style="display: none;">
+            <!-- Рекламный баннер 1win -->
+            <div class="sponsor-banner" id="sponsorBanner">
+                <div class="sponsor-content">
+                    <div class="sponsor-logo">1WIN</div>
+                    <div class="sponsor-text">Официальный спонсор CrabCoin</div>
+                    <div class="sponsor-bonus">Бонус +500% на первый депозит</div>
+                    <a href="https://lkhq.cc/7a7d1e45" target="_blank" class="sponsor-btn" id="sponsorBtn">
+                        Перейти к 1WIN
+                    </a>
+                    <button class="sponsor-close" id="sponsorClose">×</button>
+                </div>
+            </div>
+
+            <div class="profile-header">
+                <div class="profile-info" id="profileButton">
+                    <div class="profile-avatar" id="userAvatar">
+                        <span id="avatarPlaceholder">U</span>
+                    </div>
+                    <div>
+                        <div class="profile-name" id="userName">Пользователь</div>
+                        <div class="profile-id" id="userId">ID: 000000</div>
+                    </div>
+                </div>
+                <div class="energy-bar">
+                    <div class="energy-fill" id="energyFill"></div>
+                </div>
+            </div>
+            
+            <div class="balance-container">
+                <div class="balance-label">Ваш баланс</div>
+                <div class="balance" id="balance">0 CRAB</div>
+                <div class="exchange-rate" id="exchangeRate">1 TON = 1000 CRAB</div>
+            </div>
+            
+            <div class="coin-container">
+                <div class="coin" id="coin">
+                    <div class="coin-crab">🦀</div>
+                </div>
+                <div class="particles" id="particles"></div>
+            </div>
+            
+            <div class="boost-container">
+                <div class="boost" id="boost1">
+                    <div class="boost-icon">⚡</div>
+                    <div class="boost-name">Тап х2</div>
+                    <div class="boost-cost">50,000 CRAB</div>
+                </div>
+                <div class="boost" id="boost2">
+                    <div class="boost-icon">🚀</div>
+                    <div class="boost-name">Автоклик</div>
+                    <div class="boost-cost">250,000 CRAB</div>
+                </div>
+                <div class="boost" id="boost3">
+                    <div class="boost-icon">💎</div>
+                    <div class="boost-name">x5 за тап</div>
+                    <div class="boost-cost">500,000 CRAB</div>
+                </div>
+                <div class="boost" id="boost4">
+                    <div class="boost-icon">🔋</div>
+                    <div class="boost-name">+50 энергии</div>
+                    <div class="boost-cost">100,000 CRAB</div>
+                </div>
+            </div>
+            
+            <div class="footer">
+                <div class="tab active" data-screen="main">
+                    <div class="tab-icon">🏠</div>
+                    <div class="tab-name">Главная</div>
+                </div>
+                <div class="tab" data-screen="games">
+                    <div class="tab-icon">🎮</div>
+                    <div class="tab-name">Игры</div>
+                </div>
+                <div class="tab" data-screen="shop">
+                    <div class="tab-icon">🛒</div>
+                    <div class="tab-name">Магазин</div>
+                </div>
+                <div class="tab" data-screen="marketplace">
+                    <div class="tab-icon">🦀</div>
+                    <div class="tab-name">Крабы</div>
+                </div>
+                <div class="tab" data-screen="leaderboard">
+                    <div class="tab-icon">🏆</div>
+                    <div class="tab-name">Топ</div>
+                </div>
+            </div>
+            
+            <div class="notification" id="notification">+1 CRAB</div>
+            
+            <!-- Модальное окно подписки на Telegram -->
+            <div class="modal-overlay" id="telegramModal" style="display: none;">
+                <div class="modal-content">
+                    <button class="modal-close" id="closeTelegramModal">×</button>
+                    <div class="modal-title">🎉 Добро пожаловать в CrabCoin!</div>
+                    <div class="modal-subtitle">Подпишитесь на наш Telegram канал и получите бонус</div>
+                    
+                    <div class="modal-icon">🦀</div>
+                    
+                    <div class="modal-bonus">
+                        <div>Бонус за подписку</div>
+                        <div class="modal-bonus-amount">50,000 CRAB</div>
+                        <div>+ Удвоенный доход на 1 час</div>
+                    </div>
+                    
+                    <a href="https://t.me/crabcoinTon" target="_blank" class="telegram-btn">
+                        <span>📢</span>
+                        Подписаться на @crabcoinTon
+                    </a>
+                    
+                    <button class="verify-btn" id="verifySubscription">
+                        ✅ Я подписался, получить бонус
+                    </button>
+                    
+                    <div class="modal-note">
+                        После подписки нажмите кнопку подтверждения для получения бонуса
+                    </div>
+                </div>
+            </div>
+
+            <!-- Модальное окно покупки CrabPremium -->
+            <div class="modal-overlay" id="premiumModal" style="display: none;">
+                <div class="modal-content">
+                    <button class="modal-close" id="closePremiumModal">×</button>
+                    <div class="modal-title">🦀 CrabPremium</div>
+                    <div class="modal-subtitle">Получите эксклюзивные функции!</div>
+                    
+                    <div class="modal-icon">👑</div>
+                    
+                    <div class="modal-bonus">
+                        <div>Что включено:</div>
+                        <div>• Уникальные аватары</div>
+                        <div>• Эксклюзивные смайлики</div>
+                        <div>• Премиум интерфейс</div>
+                        <div>• Специальный бейдж</div>
+                    </div>
+                    
+                    <div class="modal-bonus-amount">400,000,000 CRAB</div>
+                    
+                    <button class="verify-btn" id="buyPremiumBtn">
+                        🛒 Купить CrabPremium
+                    </button>
+                    
+                    <a href="https://t.me/crabcoinTon" target="_blank" class="telegram-btn" style="margin-top: 10px;">
+                        📢 Или купить в Telegram боте
+                    </a>
+                    
+                    <div class="modal-note">
+                        После покупки вы получите доступ ко всем премиум функциям
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Экран профиля -->
+            <div class="screen" id="profileScreen">
+                <div class="screen-header">
+                    <div class="screen-title">Мой профиль</div>
+                    <div class="close-btn" id="closeProfile">×</div>
+                </div>
+                
+                <div class="profile-details">
+                    <div class="profile-detail">
+                        <div class="profile-detail-label">Логин</div>
+                        <div class="profile-detail-value" id="profileUsername">-</div>
+                    </div>
+                    <div class="profile-detail">
+                        <div class="profile-detail-label">Telegram</div>
+                        <div class="profile-detail-value" id="profileTelegram">-</div>
+                    </div>
+                    <div class="profile-detail">
+                        <div class="profile-detail-label">Email</div>
+                        <div class="profile-detail-value" id="profileEmail">-</div>
+                    </div>
+                    <div class="profile-detail">
+                        <div class="profile-detail-label">Статус</div>
+                        <div class="profile-detail-value" id="profileStatus">
+                            <span id="premiumStatus">Базовый</span>
+                            <span class="premium-badge" id="premiumBadge" style="display: none;">PREMIUM</span>
+                        </div>
+                    </div>
+                    <div class="profile-detail">
+                        <div class="profile-detail-label">Дата регистрации</div>
+                        <div class="profile-detail-value" id="profileRegDate">-</div>
+                    </div>
+                </div>
+                
+                <!-- Секция CrabPremium -->
+                <div class="premium-section" id="premiumSection" style="display: none;">
+                    <div class="screen-title">CrabPremium</div>
+                    
+                    <div class="premium-features">
+                        <div class="feature-item">
+                            <div class="feature-icon">🎨</div>
+                            <div class="feature-text">Уникальные аватары</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">😊</div>
+                            <div class="feature-text">Эксклюзивные смайлики</div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">✨</div>
+                            <div class="feature-text">Премиум интерфейс</div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <div class="balance-label">Выберите аватар:</div>
+                        <div class="avatar-selection" id="avatarSelection">
+                            <!-- Аватары будут добавлены динамически -->
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 15px 0;">
+                        <div class="balance-label">Выберите смайлик:</div>
+                        <div class="emoji-selection" id="emojiSelection">
+                            <!-- Смайлики будут добавлены динамически -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Всего заработано</div>
+                        <div class="stat-value" id="statTotalEarned">0</div>
+                        <div class="stat-label">CRAB</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Всего тапов</div>
+                        <div class="stat-value" id="statTotalTaps">0</div>
+                        <div class="stat-label">кликов</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Сила тапа</div>
+                        <div class="stat-value" id="statTapPower">1</div>
+                        <div class="stat-label">CRAB/тап</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Макс. энергия</div>
+                        <div class="stat-value" id="statMaxEnergy">100</div>
+                        <div class="stat-label">единиц</div>
+                    </div>
+                </div>
+                
+                <div class="achievements">
+                    <div class="achievement" id="achievement1">
+                        <div class="achievement-icon">💰</div>
+                        <div class="achievement-name">Первые деньги</div>
+                        <div class="achievement-desc">Заработайте 1000 CRAB</div>
+                        <div class="achievement-progress">
+                            <div class="achievement-progress-fill" id="progress1"></div>
+                        </div>
+                    </div>
+                    <div class="achievement" id="achievement2">
+                        <div class="achievement-icon">💎</div>
+                        <div class="achievement-name">Миллионер</div>
+                        <div class="achievement-desc">Заработайте 1,000,000 CRAB</div>
+                        <div class="achievement-progress">
+                            <div class="achievement-progress-fill" id="progress2"></div>
+                        </div>
+                    </div>
+                    <div class="achievement" id="achievement3">
+                        <div class="achievement-icon">⚡</div>
+                        <div class="achievement-name">Энерджайзер</div>
+                        <div class="achievement-desc">Используйте 1000 энергии</div>
+                        <div class="achievement-progress">
+                            <div class="achievement-progress-fill" id="progress3"></div>
+                        </div>
+                    </div>
+                    <div class="achievement" id="achievement4">
+                        <div class="achievement-icon">🦀</div>
+                        <div class="achievement-name">Крабовод</div>
+                        <div class="achievement-desc">Купите редкого краба</div>
+                        <div class="achievement-progress">
+                            <div class="achievement-progress-fill" id="progress4"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="logout-btn" id="logoutBtn">Выйти из аккаунта</button>
+            </div>
+            
+            <!-- Экран магазина -->
+            <div class="screen" id="shopScreen">
+                <div class="screen-header">
+                    <div class="screen-title">Магазин CrabCoin</div>
+                    <div class="close-btn" id="closeShop">×</div>
+                </div>
+                
+                <!-- Рекламный блок 1win в магазине -->
+                <div class="sponsor-card">
+                    <div class="sponsor-card-content">
+                        <div class="sponsor-card-header">
+                            <div class="sponsor-card-logo">1WIN</div>
+                            <div class="sponsor-card-badge">СПОНСОР</div>
+                        </div>
+                        <div class="sponsor-card-title">Увеличьте свой доход!</div>
+                        <div class="sponsor-card-desc">Играйте в 1WIN и получайте бонусы</div>
+                        <div class="sponsor-card-bonus">+500% на первый депозит</div>
+                        <a href="https://lkhq.cc/7a7d1e45" target="_blank" class="sponsor-card-btn">
+                            Получить бонус
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="shop-categories">
+                    <button class="shop-category active" data-category="basic">Основные</button>
+                    <button class="shop-category" data-category="premium">Премиум</button>
+                    <button class="shop-category" data-category="legendary">Легендарные</button>
+                </div>
+                
+                <div class="shop-items" id="shopItemsContainer">
+                    <!-- Магазин будет заполняться динамически -->
+                </div>
+            </div>
+            
+            <!-- Экран игр -->
+            <div class="screen" id="gamesScreen">
+                <div class="screen-header">
+                    <div class="screen-title">Игры CrabCoin</div>
+                    <div class="close-btn" id="closeGames">×</div>
+                </div>
+                
+                <div class="games-container">
+                    <div class="games-categories">
+                        <button class="games-category active" data-category="all">Все игры</button>
+                        <button class="games-category" data-category="arcade">Аркады</button>
+                        <button class="games-category" data-category="premium">Премиум</button>
+                    </div>
+                    
+                    <!-- Рекламный блок 1win в играх -->
+                    <div class="sponsor-mini-card">
+                        <div class="sponsor-mini-content">
+                            <div class="sponsor-mini-logo">1WIN</div>
+                            <div class="sponsor-mini-text">Бонус +500%</div>
+                            <a href="https://lkhq.cc/7a7d1e45" target="_blank" class="sponsor-mini-btn">
+                                Играть
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="games-grid">
+                        <div class="game-card" data-game="snake">
+                            <div class="game-icon">🐍</div>
+                            <div class="game-name">Змейка</div>
+                            <div class="game-desc">Классическая игра с заработком CRAB</div>
+                        </div>
+                        <div class="game-card" data-game="wheel">
+                            <div class="game-icon">🎡</div>
+                            <div class="game-name">Колесо Фортуны</div>
+                            <div class="game-desc">Выиграй от 1,000 до 1,000,000 CRAB!</div>
+                        </div>
+                        <!-- Новая карточка CrabPremium -->
+                        <div class="game-card premium-card" data-game="premium">
+                            <div class="game-icon">👑</div>
+                            <div class="game-name">CrabPremium</div>
+                            <div class="game-desc">Уникальные аватары и смайлики!</div>
+                            <div class="premium-price">400,000,000 CRAB</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Экран игры Змейка -->
+            <div class="snake-game-container" id="snakeScreen">
+                <div class="snake-game-header">
+                    <div class="snake-game-title">Змейка CrabCoin</div>
+                    <button class="snake-back-btn" id="closeSnake">Назад</button>
+                </div>
+                
+                <div class="snake-game-stats">
+                    <div class="snake-stat">
+                        <div class="snake-stat-value" id="snakeScore">0</div>
+                        <div class="snake-stat-label">Очки</div>
+                    </div>
+                    <div class="snake-stat">
+                        <div class="snake-stat-value" id="snakeLength">3</div>
+                        <div class="snake-stat-label">Длина</div>
+                    </div>
+                    <div class="snake-stat">
+                        <div class="snake-stat-value" id="snakeReward">0</div>
+                        <div class="snake-stat-label">Награда</div>
+                    </div>
+                </div>
+                
+                <div class="snake-game-board" id="snakeBoard">
+                    <!-- Игровое поле будет заполняться динамически -->
+                </div>
+                
+                <div class="snake-controls">
+                    <button class="snake-btn snake-btn-up" id="snakeUp">↑</button>
+                    <button class="snake-btn snake-btn-left" id="snakeLeft">←</button>
+                    <button class="snake-btn snake-btn-right" id="snakeRight">→</button>
+                    <button class="snake-btn snake-btn-down" id="snakeDown">↓</button>
+                </div>
+                
+                <div class="snake-game-over" id="snakeGameOver">
+                    <div class="snake-game-over-title">Игра окончена!</div>
+                    <div class="snake-game-over-score">Ваш счет: <span id="finalScore">0</span></div>
+                    <div class="snake-game-over-reward">Вы заработали: <span id="finalReward">0</span> CRAB</div>
+                    <div class="snake-game-over-penalty">Списано 90% выигрыша: <span id="finalPenalty">0</span> CRAB</div>
+                    <button class="snake-restart-btn" id="snakeRestart">Играть снова</button>
+                </div>
+            </div>
+            
+            <!-- Экран Колеса Фортуны -->
+            <div class="screen" id="wheelScreen">
+                <div class="screen-header">
+                    <div class="screen-title">Колесо Фортуны</div>
+                    <button class="close-btn" id="closeWheel">×</button>
+                </div>
+                
+                <div class="wheel-container">
+                    <div class="wheel-wrapper">
+                        <div class="wheel" id="wheel">
+                            <div class="wheel-center">CRAB</div>
+                            <div class="wheel-pointer"></div>
+                            <div class="wheel-prizes">
+                                <!-- Призы будут добавлены динамически -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="wheel-controls">
+                        <div class="wheel-packs">
+                            <button class="wheel-pack active" data-spins="1">
+                                <div class="wheel-pack-spins">1 спин</div>
+                                <div class="wheel-pack-price">20,000 CRAB</div>
+                            </button>
+                            <button class="wheel-pack" data-spins="10">
+                                <div class="wheel-pack-spins">10 спинов</div>
+                                <div class="wheel-pack-price">120,000 CRAB</div>
+                            </button>
+                            <button class="wheel-pack" data-spins="20">
+                                <div class="wheel-pack-spins">20 спинов</div>
+                                <div class="wheel-pack-price">200,000 CRAB</div>
+                            </button>
+                        </div>
+                        
+                        <button class="wheel-spin-btn" id="wheelSpinBtn">Крутить за 20,000 CRAB</button>
+                        
+                        <div class="wheel-result" id="wheelResult" style="display: none;">
+                            <div class="wheel-result-title">Ваш выигрыш:</div>
+                            <div class="wheel-result-prize" id="wheelPrize">0 CRAB</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Экран маркетплейса -->
+            <div class="screen" id="marketplaceScreen">
+                <div class="screen-header">
+                    <div class="screen-title">Редкие крабы</div>
+                    <div class="close-btn" id="closeMarketplace">×</div>
+                </div>
+                
+                <div class="exchange-container">
+                    <div class="exchange-rate-display">
+                        <div class="balance-label">Текущий курс</div>
+                        <div class="exchange-rate-value" id="currentRate">1 TON = 1000 CRAB</div>
+                    </div>
+                    <div class="exchange-info">
+                        Курс зависит от общего количества CRAB в системе. Чем больше CRAB, тем выше курс TON.
+                    </div>
+                </div>
+                
+                <div class="marketplace-container" id="marketplaceItems">
+                    <!-- Редкие крабы будут добавляться динамически -->
+                </div>
+            </div>
+            
+            <!-- Экран топа игроков -->
+            <div class="screen" id="leaderboardScreen">
+                <div class="screen-header">
+                    <div class="screen-title">Топ игроков</div>
+                    <div class="close-btn" id="closeLeaderboard">×</div>
+                </div>
+                
+                <div class="leaderboard-container">
+                    <div class="balance-label">Ваше место в рейтинге</div>
+                    <div class="balance" id="userRank">#0</div>
+                    
+                    <div class="leaderboard-list" id="leaderboardList">
+                        <!-- Игроки будут добавляться динамически -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
